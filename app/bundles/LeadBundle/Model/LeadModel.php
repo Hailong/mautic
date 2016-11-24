@@ -827,6 +827,15 @@ class LeadModel extends FormModel
             }
         }
 
+        // Search for lead by fingerprint
+        if (empty($lead) && !empty($queryFields['fingerprint'])) {
+            $deviceRepo = $this->getDeviceRepository();
+            $device     = $deviceRepo->getDeviceByFingerprint($queryFields['fingerprint']);
+            if ($device) {
+                $lead = $this->getEntity($device['lead_id']);
+            }
+        }
+
         if (empty($lead)) {
             // No lead found so generate one
             $lead = $this->getCurrentLead();
