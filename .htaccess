@@ -4,7 +4,11 @@
 # start page (path "/") because otherwise Apache will apply the rewriting rules
 # to each configured DirectoryIndex file (e.g. index.php, index.html, index.pl).
 #DirectoryIndex index.php
-
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin http://cms.marketingneat.com
+    Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept"
+    Header set Access-Control-Allow-Credentials: true
+</IfModule>
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
