@@ -43,6 +43,45 @@ class ShareModel extends AbstractCommonModel
         ]);
     }
 
+    public function generateShareUrl($url, $clickthrough)
+    {
+        $sep = preg_match('/(\?|&)/', $url) ? '&' : '?';
+
+        return $url.$sep.'ct='.$clickthrough;
+    }
+
+    public function extractShareToken(&$url)
+    {
+        $param = 'ct';
+        $token = '';
+
+        $pieces = preg_split('/(\?|&)/', $url);
+
+        foreach ($pieces as $key => $piece) {
+            if (strpos($piece, $param.'=') === 0) {
+                $token = explode('=', $piece)[1];
+                unset($pieces[$key]);
+            }
+        }
+
+        if ($token) {
+            $url = implode('?', array_slice($pieces, 0, 2));
+            $url = implode('&', array_merge([$url], array_slice($pieces, 2)));
+        }
+
+        return $token;
+    }
+
+    public function parseCurrentUrl($currentUrl)
+    {
+        $cleanUrl            = $currentUrl;
+        $currentClickthrough = $this->extractShareToken($cleanUrl);
+        $newClickthrough     = $this->generateClickThrough();
+        $newShareUrl         = $this->generateShareUrl($cleanUrl, $newClickthrough);
+
+        return [$currentClickthrough, $newClickthrough, $newShareUrl];
+    }
+
     public function parseClickThrough($clickthrough)
     {
         $ct        = null;

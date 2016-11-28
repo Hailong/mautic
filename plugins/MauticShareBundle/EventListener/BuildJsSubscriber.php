@@ -36,23 +36,40 @@ class BuildJsSubscriber extends CommonSubscriber
      */
     public function onBuildJs(BuildJsEvent $event)
     {
-        $onShareUrl   = $this->router->generate('mautic_share_on_page_share', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        $model        = $this->factory->getModel('share');
-        $clickthrough = $model->generateClickThrough();
+        $onShareUrl = $this->router->generate('mautic_share_on_page_share', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $model      = $this->factory->getModel('share');
+        // $clickthrough = $model->generateClickThrough();
+
+//         // If the current visit has a click-through variable of page sharing,
+//         // hand it over to the page hits request.
+//         $ct = $snippet = '';
+//         parse_str(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_QUERY), $params);
+//         if (isset($params['ct']) && $model->parseClickThrough($params['ct'])) {
+//             $ct      = $params['ct'];
+//             $snippet = <<<JS
+// if (typeof MauticJS.getInput === 'function') {
+//     var pageview = MauticJS.getInput('send', 'pageview');
+//     if (typeof pageview[2] !== 'object') {
+//         pageview[2] = {};
+//     }
+//     pageview[2].ct = '{$ct}';
+// }
+// JS;
+//         }
+
+        list($currentCT, $newCT, $shareUrl) = $model->parseCurrentUrl($_SERVER['HTTP_REFERER']);
 
         // If the current visit has a click-through variable of page sharing,
         // hand it over to the page hits request.
-        $ct = $snippet = '';
-        parse_str(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_QUERY), $params);
-        if (isset($params['ct']) && $model->parseClickThrough($params['ct'])) {
-            $ct      = $params['ct'];
+        $snippet = '';
+        if ($currentCT) {
             $snippet = <<<JS
 if (typeof MauticJS.getInput === 'function') {
     var pageview = MauticJS.getInput('send', 'pageview');
     if (typeof pageview[2] !== 'object') {
         pageview[2] = {};
     }
-    pageview[2].ct = '{$ct}';
+    pageview[2].ct = '{$currentCT}';
 }
 JS;
         }
@@ -62,14 +79,15 @@ JS;
 MauticJS.share = {
     init: function () {
         if (typeof WeChatJSLoader != 'undefined') {
-            var clickthrough = '{$clickthrough}';
-            WeChatJSLoader.onGetClickThrough(function() {
-                return clickthrough;
+            var clickthrough = '{$newCT}';
+            var shareUrl = '{$shareUrl}';
+            WeChatJSLoader.onGetShareUrl(function() {
+                return shareUrl;
             });
             WeChatJSLoader.onShare(function(source, target, status, url, title, image) {
                 MauticJS.makeCORSRequest('POST', '{$onShareUrl}', {
                     f: MauticJS.fingerprint,
-                    p: '{$ct}',
+                    p: '{$currentCT}',
                     c: clickthrough,
                     s: source,
                     t: target,
@@ -79,6 +97,7 @@ MauticJS.share = {
                     i: image
                 }, function(response, xhr) {
                     clickthrough = response.c;
+                    shareUrl = response.su;
                 });
             });
         }

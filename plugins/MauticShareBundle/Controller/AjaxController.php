@@ -39,7 +39,9 @@ class AjaxController extends CommonAjaxController
 
             $model->createPageShare($pct, $shareCode, $source, $target, $status, $url, $title, $image, $fingerprint);
 
-            $data = ['c' => $model->generateClickThrough()];
+            list($currentCT, $newCT, $shareUrl) = $model->parseCurrentUrl($_SERVER['HTTP_REFERER']);
+
+            $data = ['c' => $newCT, 'su' => $shareUrl];
         }
 
         return new JsonResponse($data);
