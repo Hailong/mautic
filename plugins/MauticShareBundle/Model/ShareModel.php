@@ -154,4 +154,14 @@ class ShareModel extends AbstractCommonModel
         $this->em->persist($share);
         $this->em->flush();
     }
+
+    public function getNameGetter()
+    {
+        return 'getName';
+    }
+
+    public function getName()
+    {
+        return 'Page Share';
+    }
 }
