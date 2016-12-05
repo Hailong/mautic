@@ -49,7 +49,7 @@ var z = d3.scaleOrdinal()
 
 var stack = d3.stack();
 
-d3.csv("shares/ranking.csv", type, function(error, data) {
+d3.csv("ranking.csv", type, function(error, data) {
   if (error) throw error;
 
   data.sort(function(a, b) { return b.total - a.total; });
