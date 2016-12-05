@@ -17,6 +17,14 @@ return [
 
     'routes' => [
         'main' => [
+            'mautic_share_ranking' => [
+                'path'       => 'shares/ranking',
+                'controller' => 'MauticShareBundle:Share:ranking',
+            ],
+            'mautic_share_ranking_data' => [
+                'path'       => 'shares/ranking.csv',
+                'controller' => 'MauticShareBundle:Share:rankingData',
+            ],
         ],
         'public' => [
             'mautic_share_on_page_share' => [
@@ -39,12 +47,23 @@ return [
             'mautic.share.model.share' => [
                 'class' => 'MauticPlugin\MauticShareBundle\Model\ShareModel',
             ],
+            'mautic.share.model.report' => [
+                'class' => 'MauticPlugin\MauticShareBundle\Model\ReportModel',
+            ],
         ],
         'others' => [
         ],
     ],
     'menu' => [
         'main' => [
+            'mautic.share.menu' => [
+                'iconClass' => 'fa-weixin',
+                'priority'  => 200,
+            ],
+            'mautic.share.ranking' => [
+                'route'  => 'mautic_share_ranking',
+                'parent' => 'mautic.share.menu',
+            ],
         ],
     ],
 
