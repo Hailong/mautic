@@ -767,7 +767,7 @@ class LeadModel extends FormModel
      *
      * @param array $queryFields
      */
-    public function getContactFromRequest($queryFields = [], $trackByFingerprint = false)
+    public function getContactFromRequest($queryFields = [])
     {
         $lead = null;
 
@@ -828,7 +828,7 @@ class LeadModel extends FormModel
         }
 
         // Search for lead by fingerprint
-        if (empty($lead) && !empty($queryFields['fingerprint']) && $trackByFingerprint) {
+        if (empty($lead) && !empty($queryFields['fingerprint'])) {
             $deviceRepo = $this->getDeviceRepository();
             $device     = $deviceRepo->getDeviceByFingerprint($queryFields['fingerprint']);
             if ($device) {
